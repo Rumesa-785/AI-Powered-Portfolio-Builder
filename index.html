@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PortfolioForge AI | Build Your Portfolio in Minutes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-light: #a78bfa;
+            --primary-dark: #7c3aed;
+            --secondary: #06b6d4;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gradient-start: #8b5cf6;
+            --gradient-mid: #06b6d4;
+            --gradient-end: #f59e0b;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border-color: #334155;
+        }
+        
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.3), 0 2px 4px -1px rgba(139, 92, 246, 0.06);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.4), 0 4px 6px -2px rgba(139, 92, 246, 0.05);
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        
+        .preview-container {
+            height: 600px;
+            overflow-y: auto;
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            background: linear-gradient(145deg, rgba(139, 92, 246, 0.05), rgba(6, 182, 212, 0.05));
+        }
+        
+        .portfolio-preview {
+            min-height: 100%;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section-highlight {
+            border-left: 4px solid var(--primary);
+            padding-left: 12px;
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.1), transparent);
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+        }
+        
+        .color-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .skill-tag {
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            color: white;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .step-indicator {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .step-active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 6px rgba(139, 92, 246, 0.3);
+        }
+        
+        .step-inactive {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 2px solid var(--border-color);
+        }
+        
+        .input-focus:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+        
+        .glow {
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm dark:bg-slate-900/80">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center glow">
+                    <i class="fas fa-rocket text-white text-lg"></i>
+                </div>
+                <h1 class="text-2xl font-bold gradient-text">PortfolioForge AI</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="exportBtn" class="px-4 py-2 gradient-bg text-white rounded-lg hover:opacity-90 transition-opacity hidden shadow-lg">
+                    <i class="fas fa-download mr-2"></i>Export
+                </button>
+                <button id="loginBtn" class="px-4 py-2 border border-indigo-600 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors font-medium">
+                    <i class="fas fa-user mr-2"></i>Login
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Form Section -->
+            <div class="space-y-8">
+                <!-- Hero Section -->
+                <div class="text-center lg:text-left">
+                    <h2 class="text-4xl font-bold text-slate-800 dark:text-white mb-4">Build Your <span class="gradient-text">Portfolio</span> with AI</h2>
+                    <p class="text-lg text-slate-600 dark:text-slate-300 mb-6">Fill out the form and let AI create a stunning portfolio website for you in minutes.</p>
+                    <div class="flex flex-wrap gap-2 justify-center lg:justify-start">
+                        <span class="color-badge"><i class="fas fa-robot mr-1"></i> AI-Powered</span>
+                        <span class="color-badge" style="background: linear-gradient(135deg, #f59e0b, #f97316);"><i class="fas fa-bolt mr-1"></i> Lightning Fast</span>
+                        <span class="color-badge" style="background: linear-gradient(135deg, #10b981, #059669);"><i class="fas fa-palette mr-1"></i> Fully Customizable</span>
+                    </div>
+                </div>
+
+                <!-- Form Steps -->
+                <div class="card p-6 fade-in glow">
+                    <div class="flex mb-6">
+                        <div class="step flex-1 text-center relative">
+                            <div class="step-indicator step-active mx-auto">1</div>
+                            <p class="mt-2 text-sm font-medium text-indigo-600 dark:text-indigo-400">Personal Info</p>
+                        </div>
+                        <div class="step flex-1 text-center relative">
+                            <div class="step-indicator step-inactive mx-auto">2</div>
+                            <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Projects</p>
+                        </div>
+                        <div class="step flex-1 text-center relative">
+                            <div class="step-indicator step-inactive mx-auto">3</div>
+                            <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Skills & Contact</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 1: Personal Info -->
+                    <div id="step1" class="step-content space-y-4">
+                        <h3 class="text-xl font-semibold text-slate-800 dark:text-white section-highlight">Personal Information</h3>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
+                            <input type="text" id="name" class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white input-focus transition-colors" placeholder="John Doe">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Job Title</label>
+                            <input type="text" id="title" class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white input-focus transition-colors" placeholder="Frontend Developer">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Bio</label>
+                            <textarea id="bio" rows="3" class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white input-focus transition-colors" placeholder="Tell us about yourself..."></textarea>
+                            <button class="mt-2 text-sm gradient-text font-medium flex items-center pulse">
+                                <i class="fas fa-magic mr-2"></i> Generate with AI
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-end pt-4">
+                            <button id="next1" class="btn-primary px-6 py-3 rounded-lg flex items-center font-medium">
+                                Next <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Projects -->
+                    <div id="step2" class="step-content space-y-4 hidden">
+                        <h3 class="text-xl font-semibold text-slate-800 dark:text-white section-highlight">Your Projects</h3>
+                        
+                        <div id="projects-container">
+                            <div class="project-item card p-4 mb-4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-medium text-slate-800 dark:text-white">Project 1</h4>
+                                    <button class="text-red-500 hover:text-red-700 transition-colors">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Project Name</label>
+                                        <input type="text" class="project-name w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white input-focus transition-colors" placeholder="E-commerce Website">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
+                                        <textarea class="project-desc w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white input-focus transition-colors" rows="2" placeholder="A modern e-commerce platform with React and Node.js..."></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Technologies</label>
+                                        <input type="text" class="project-tech w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white input-focus transition-colors" placeholder="React, Node.js, MongoDB">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button id="add-project" class="w-full py-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-slate-500 dark:text-slate-400 hover:border-indigo-500 hover:text-indigo-500 transition-colors font-medium">
+                            <i class="fas fa-plus mr-2"></i> Add Another Project
+                        </button>
+                        
+                        <div class="flex justify-between pt-4">
+                            <button id="prev2" class="px-6 py-3 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium">
+                                <i class="fas fa-arrow-left mr-2"></i> Back
+                            </button>
+                            <button id="next2" class="btn-primary px-6 py-3 rounded-lg flex items-center font-medium">
+                                Next <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Skills & Contact -->
+                    <div id="step3" class="step-content space-y-4 hidden">
+                        <h3 class="text-xl font-semibold text-slate-800 dark:text-white section-highlight">Skills & Contact</h3>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Skills</label>
+                            <div class="flex flex-wrap gap-2 mb-2" id="skills-container">
+                                <span class="skill-tag flex items-center">
+                                    JavaScript <button class="ml-1 text-white hover:text-gray-200"><i class="fas fa-times text-xs"></i></button>
+                                </span>
+                                <span class="skill-tag flex items-center">
+                                    React <button class="ml-1 text-white hover:text-gray-200"><i class="fas fa-times text-xs"></i></button>
+                                </span>
+                            </div>
+                            <div class="flex">
+                                <input type="text" id="skill-input" class="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-l-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white input-focus transition-colors" placeholder="Add a skill">
+                                <button id="add-skill" class="px-4 py-3 gradient-bg text-white rounded-r-lg hover:opacity-90 transition-opacity font-medium">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contact Email</label>
+                            <input type="email" id="email" class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white input-focus transition-colors" placeholder="your.email@example.com">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Social Links</label>
+                            <div class="space-y-2">
+                                <div class="flex items-center">
+                                    <i class="fab fa-github text-slate-600 dark:text-slate-400 w-6"></i>
+                                    <input type="text" id="github" class="flex-1 ml-2 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white input-focus transition-colors" placeholder="GitHub username">
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fab fa-linkedin text-slate-600 dark:text-slate-400 w-6"></i>
+                                    <input type="text" id="linkedin" class="flex-1 ml-2 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white input-focus transition-colors" placeholder="LinkedIn username">
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fab fa-twitter text-slate-600 dark:text-slate-400 w-6"></i>
+                                    <input type="text" id="twitter" class="flex-1 ml-2 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white input-focus transition-colors" placeholder="Twitter username">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between pt-4">
+                            <button id="prev3" class="px-6 py-3 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium">
+                                <i class="fas fa-arrow-left mr-2"></i> Back
+                            </button>
+                            <button id="generateBtn" class="btn-primary px-6 py-3 rounded-lg flex items-center font-medium">
+                                <i class="fas fa-magic mr-2"></i> Generate Portfolio
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-semibold text-slate-800 dark:text-white">Live Preview</h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-slate-600 dark:text-slate-400">Theme:</span>
+                        <div class="relative inline-block w-12 h-6 rounded-full bg-slate-300 dark:bg-slate-700 cursor-pointer" id="themeToggle">
+                            <div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform duration-300" id="themeToggleThumb"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="preview-container">
+                    <div class="portfolio-preview">
+                        <div class="text-center py-12 gradient-bg text-white rounded-xl mb-8">
+                            <h1 class="text-4xl font-bold mb-4" id="preview-name">John Doe</h1>
+                            <p class="text-xl opacity-90" id="preview-title">Frontend Developer</p>
+                        </div>
+                        
+                        <div class="px-6 mb-8">
+                            <h2 class="text-2xl font-bold mb-4 text-slate-800 dark:text-white">About Me</h2>
+                            <p id="preview-bio" class="text-slate-600 dark:text-slate-300 leading-relaxed">This is where your bio will appear. Fill out the form to generate your personalized portfolio content.</p>
+                        </div>
+                        
+                        <div class="px-6 mb-8">
+                            <h2 class="text-2xl font-bold mb-4 text-slate-800 dark:text-white">Projects</h2>
+                            <div id="preview-projects" class="space-y-6">
+                                <div class="card p-6">
+                                    <h3 class="text-xl font-semibold mb-2 text-slate-800 dark:text-white">Project Name</h3>
+                                    <p class="text-slate-600 dark:text-slate-300 mb-4">Project description will appear here once you add your projects.</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="skill-tag">Technology</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="px-6 mb-8">
+                            <h2 class="text-2xl font-bold mb-4 text-slate-800 dark:text-white">Skills</h2>
+                            <div id="preview-skills" class="flex flex-wrap gap-2">
+                                <span class="skill-tag">JavaScript</span>
+                                <span class="skill-tag">React</span>
+                            </div>
+                        </div>
+                        
+                        <div class="px-6 mb-8">
+                            <h2 class="text-2xl font-bold mb-4 text-slate-800 dark:text-white">Contact</h2>
+                            <div class="flex space-x-4">
+                                <a href="#" class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-indigo-600 hover:text-white transition-colors">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-indigo-600 hover:text-white transition-colors">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-indigo-600 hover:text-white transition-colors">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center text-slate-500 dark:text-slate-400 text-sm">
+                    <p>Your portfolio preview updates in real-time as you fill out the form</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Theme Toggle Button -->
+    <div class="theme-toggle">
+        <button class="w-12 h-12 rounded-full gradient-bg text-white shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity pulse">
+            <i class="fas fa-palette"></i>
+        </button>
+    </div>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeToggleThumb = document.getElementById('themeToggleThumb');
+        const body = document.body;
+        
+        themeToggle.addEventListener('click', () => {
+            if (body.getAttribute('data-theme') === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                themeToggleThumb.style.transform = 'translateX(24px)';
+            } else {
+                body.setAttribute('data-theme', 'light');
+                themeToggleThumb.style.transform = 'translateX(0)';
+            }
+        });
+        
+        // Form Navigation
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        const next1 = document.getElementById('next1');
+        const next2 = document.getElementById('next2');
+        const prev2 = document.getElementById('prev2');
+        const prev3 = document.getElementById('prev3');
+        const generateBtn = document.getElementById('generateBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        
+        next1.addEventListener('click', () => {
+            step1.classList.add('hidden');
+            step2.classList.remove('hidden');
+            updateStepIndicator(2);
+        });
+        
+        next2.addEventListener('click', () => {
+            step2.classList.add('hidden');
+            step3.classList.remove('hidden');
+            updateStepIndicator(3);
+        });
+        
+        prev2.addEventListener('click', () => {
+            step2.classList.add('hidden');
+            step1.classList.remove('hidden');
+            updateStepIndicator(1);
+        });
+        
+        prev3.addEventListener('click', () => {
+            step3.classList.add('hidden');
+            step2.classList.remove('hidden');
+            updateStepIndicator(2);
+        });
+        
+        function updateStepIndicator(step) {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((s, index) => {
+                const circle = s.querySelector('.step-indicator');
+                const text = s.querySelector('p');
+                
+                if (index < step) {
+                    circle.classList.remove('step-inactive');
+                    circle.classList.add('step-active');
+                    text.classList.remove('text-slate-600', 'dark:text-slate-400');
+                    text.classList.add('text-indigo-600', 'dark:text-indigo-400', 'font-medium');
+                } else if (index === step) {
+                    circle.classList.remove('step-inactive');
+                    circle.classList.add('step-active');
+                    text.classList.remove('text-slate-600', 'dark:text-slate-400');
+                    text.classList.add('text-indigo-600', 'dark:text-indigo-400', 'font-medium');
+                } else {
+                    circle.classList.remove('step-active');
+                    circle.classList.add('step-inactive');
+                    text.classList.remove('text-indigo-600', 'dark:text-indigo-400', 'font-medium');
+                    text.classList.add('text-slate-600', 'dark:text-slate-400');
+                }
+            });
+        }
+        
+        // Project Management
+        const projectsContainer = document.getElementById('projects-container');
+        const addProjectBtn = document.getElementById('add-project');
+        
+        addProjectBtn.addEventListener('click', () => {
+            const projectCount = projectsContainer.children.length + 1;
+            const projectHTML = `
+                <div class="project-item card p-4 mb-4 fade-in">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-medium text-slate-800 dark:text-white">Project ${projectCount}</h4>
+                        <button class="text-red-500 hover:text-red-700 transition-colors remove-project">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Project Name</label>
+                            <input type="text" class="project-name w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white input-focus transition-colors" placeholder="Project Name">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
+                            <textarea class="project-desc w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white input-focus transition-colors" rows="2" placeholder="Project description..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Technologies</label>
+                            <input type="text" class="project-tech w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white input-focus transition-colors" placeholder="Technologies used...">
+                        </div>
+                    </div>
+                </div>
+            `;
+            projectsContainer.insertAdjacentHTML('beforeend', projectHTML);
+            
+            // Add event listener to the new remove button
+            const newProject = projectsContainer.lastElementChild;
+            const removeBtn = newProject.querySelector('.remove-project');
+            removeBtn.addEventListener('click', () => {
+                newProject.remove();
+                updateProjectTitles();
+            });
+            
+            // Add input listeners for live preview
+            const inputs = newProject.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+        });
+        
+        function updateProjectTitles() {
+            const projects = projectsContainer.querySelectorAll('.project-item');
+            projects.forEach((project, index) => {
+                const title = project.querySelector('h4');
+                title.textContent = `Project ${index + 1}`;
+            });
+        }
+        
+        // Skills Management
+        const skillsContainer = document.getElementById('skills-container');
+        const skillInput = document.getElementById('skill-input');
+        const addSkillBtn = document.getElementById('add-skill');
+        
+        addSkillBtn.addEventListener('click', () => {
+            const skill = skillInput.value.trim();
+            if (skill) {
+                const skillHTML = `
+                    <span class="skill-tag flex items-center fade-in">
+                        ${skill} <button class="ml-1 text-white hover:text-gray-200 remove-skill"><i class="fas fa-times text-xs"></i></button>
+                    </span>
+                `;
+                skillsContainer.insertAdjacentHTML('beforeend', skillHTML);
+                skillInput.value = '';
+                
+                // Add event listener to the new remove button
+                const newSkill = skillsContainer.lastElementChild;
+                const removeBtn = newSkill.querySelector('.remove-skill');
+                removeBtn.addEventListener('click', () => {
+                    newSkill.remove();
+                    updatePreview();
+                });
+                
+                updatePreview();
+            }
+        });
+        
+        skillInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addSkillBtn.click();
+            }
+        });
+        
+        // Live Preview Updates
+        function updatePreview() {
+            // Update name
+            const name = document.getElementById('name').value || 'John Doe';
+            document.getElementById('preview-name').textContent = name;
+            
+            // Update title
+            const title = document.getElementById('title').value || 'Frontend Developer';
+            document.getElementById('preview-title').textContent = title;
+            
+            // Update bio
+            const bio = document.getElementById('bio').value || 'This is where your bio will appear. Fill out the form to generate your personalized portfolio content.';
+            document.getElementById('preview-bio').textContent = bio;
+            
+            // Update projects
+            const previewProjects = document.getElementById('preview-projects');
+            previewProjects.innerHTML = '';
+            
+            const projectItems = document.querySelectorAll('.project-item');
+            if (projectItems.length === 0) {
+                previewProjects.innerHTML = `
+                    <div class="card p-6">
+                        <h3 class="text-xl font-semibold mb-2 text-slate-800 dark:text-white">Project Name</h3>
+                        <p class="text-slate-600 dark:text-slate-300 mb-4">Project description will appear here once you add your projects.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="skill-tag">Technology</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                projectItems.forEach(project => {
+                    const name = project.querySelector('.project-name').value || 'Project Name';
+                    const desc = project.querySelector('.project-desc').value || 'Project description will appear here.';
+                    const tech = project.querySelector('.project-tech').value || 'Technology';
+                    
+                    const techTags = tech.split(',').map(t => t.trim()).filter(t => t).map(t => 
+                        `<span class="skill-tag">${t}</span>`
+                    ).join('');
+                    
+                    const projectHTML = `
+                        <div class="card p-6 mb-4">
+                            <h3 class="text-xl font-semibold mb-2 text-slate-800 dark:text-white">${name}</h3>
+                            <p class="text-slate-600 dark:text-slate-300 mb-4">${desc}</p>
+                            <div class="flex flex-wrap gap-2">
+                                ${techTags}
+                            </div>
+                        </div>
+                    `;
+                    previewProjects.insertAdjacentHTML('beforeend', projectHTML);
+                });
+            }
+            
+            // Update skills
+            const previewSkills = document.getElementById('preview-skills');
+            previewSkills.innerHTML = '';
+            
+            const skillTags = document.querySelectorAll('.skill-tag');
+            if (skillTags.length === 0) {
+                previewSkills.innerHTML = `
+                    <span class="skill-tag">JavaScript</span>
+                    <span class="skill-tag">React</span>
+                `;
+            } else {
+                skillTags.forEach(tag => {
+                    const skillText = tag.textContent.replace('×', '').trim();
+                    const skillHTML = `<span class="skill-tag">${skillText}</span>`;
+                    previewSkills.insertAdjacentHTML('beforeend', skillHTML);
+                });
+            }
+        }
+        
+        // Add event listeners for form inputs
+        const formInputs = document.querySelectorAll('input, textarea');
+        formInputs.forEach(input => {
+            input.addEventListener('input', updatePreview);
+        });
+        
+        // Generate Portfolio
+        generateBtn.addEventListener('click', () => {
+            // Show loading state
+            generateBtn.innerHTML = '<div class="loading mr-2"></div> Generating...';
+            generateBtn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                generateBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Portfolio Generated!';
+                exportBtn.classList.remove('hidden');
+                
+                // Show success message
+                const successMsg = document.createElement('div');
+                successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in';
+                successMsg.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Your portfolio has been generated successfully!';
+                document.body.appendChild(successMsg);
+                
+                setTimeout(() => {
+                    successMsg.remove();
+                }, 3000);
+                
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    generateBtn.innerHTML = '<i class="fas fa-magic mr-2"></i> Generate Portfolio';
+                    generateBtn.disabled = false;
+                }, 2000);
+            }, 2000);
+        });
+        
+        // Export Portfolio
+        exportBtn.addEventListener('click', () => {
+            // Show export options
+            const exportModal = document.createElement('div');
+            exportModal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50 fade-in';
+            exportModal.innerHTML = `
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-6 max-w-md w-full mx-4 card">
+                    <h3 class="text-xl font-bold mb-4 text-slate-800 dark:text-white">Export Portfolio</h3>
+                    <div class="space-y-4">
+                        <button class="w-full py-3 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center justify-center font-medium">
+                            <i class="fas fa-file-code mr-2"></i> Download as HTML
+                        </button>
+                        <button class="w-full py-3 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center justify-center font-medium">
+                            <i class="fas fa-share-alt mr-2"></i> Share Portfolio Link
+                        </button>
+                        <button class="w-full py-3 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center justify-center font-medium">
+                            <i class="fab fa-github mr-2"></i> Deploy to GitHub Pages
+                        </button>
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <button id="closeExportModal" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(exportModal);
+            
+            document.getElementById('closeExportModal').addEventListener('click', () => {
+                exportModal.remove();
+            });
+        });
+        
+        // Initialize
+        updatePreview();
+        
+        // Add event listeners to existing remove buttons
+        document.querySelectorAll('.remove-project').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.closest('.project-item').remove();
+                updateProjectTitles();
+                updatePreview();
+            });
+        });
+        
+        document.querySelectorAll('.remove-skill').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.closest('.skill-tag').remove();
+                updatePreview();
+            });
+        });
+    </script>
+</body>
+</html>
